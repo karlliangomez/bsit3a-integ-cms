@@ -8,6 +8,16 @@ module.exports = {
             method: 'GET',
             path: '/students/list',
             handler: 'custom-controller.getStudents'
+        },
+        {
+            method: 'POST',
+            path: '/students/create',
+            handler: 'custom-controller.createStudent'
+        },
+        {
+            method: 'PUT',
+            path: '/students/update/:id',
+            handler: 'custom-controller.updateStudent'
         }
     ],
 }

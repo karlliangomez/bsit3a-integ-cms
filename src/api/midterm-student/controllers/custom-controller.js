@@ -1,6 +1,6 @@
+// @ts-nocheck
+
 'use strict';
-
-
 
 module.exports = {
     async getStudentsbyAgeStatus(ctx) {
