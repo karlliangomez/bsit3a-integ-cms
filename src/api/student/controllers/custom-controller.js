@@ -108,5 +108,34 @@ module.exports = {
         } catch (error) {
             ctx.throw(500, error)
         }
+    },
+
+    //Delete student data
+    async deleteStudent(ctx) {
+        try {
+            const { id } = ctx.params;
+
+            //Check if studnet exists
+            const checkID = await strapi.documents('api::student.student').findOne({
+                documentId: id,
+            });
+
+            //If student doesn't exist
+            if (!checkID){
+                return ctx.notFound('Student not found')
+            }
+
+            const deleteStudent = await strapi.documents('api::student.student').delete({
+                documentId: id,
+            });
+            ctx.body = {
+                message: 'Student deleted successfully',
+                status: 200
+            }
+        } catch (error) {
+            ctx.throw(500, error);
+        }
     }
+
+
 }
