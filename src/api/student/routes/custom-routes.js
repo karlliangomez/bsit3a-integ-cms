@@ -24,5 +24,15 @@ module.exports = {
             path: '/students/delete/:id',
             handler: 'custom-controller.deleteStudent'
         },
+        {
+            method: 'DELETE',
+            path: '/students/deletebycourse/:course_id',
+            handler: 'custom-controller.deleteAllStudentsByCourse'
+        },
+        {
+            method: 'POST',
+            path: '/students/createandvalidate',
+            handler: 'custom-controller.CreateAndValidateStudent'
+        }
     ],
 }

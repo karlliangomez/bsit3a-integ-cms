@@ -2,6 +2,7 @@
 
 'use strict';
 
+const { filter } = require("../../../../config/middlewares");
 const course = require("../../course/controllers/course");
 const student = require("./student");
 
@@ -121,7 +122,7 @@ module.exports = {
             });
 
             //If student doesn't exist
-            if (!checkID){
+            if (!checkID) {
                 return ctx.notFound('Student not found')
             }
 
@@ -129,13 +130,124 @@ module.exports = {
                 documentId: id,
             });
             ctx.body = {
-                message: 'Student deleted successfully',
+                message: 'Students deleted successfully',
                 status: 200
             }
         } catch (error) {
             ctx.throw(500, error);
         }
-    }
+    },
 
+    //Delete All Student in a course
+    async deleteAllStudentsByCourse(ctx) {
+        try {
+            const { course_id } = ctx.params;
+
+            const checkCourse = await strapi.documents('api::student.student').findMany({
+                filters: {
+                    course: {
+                        documentId: course_id,
+                    }
+                    
+                },
+
+            });
+
+            if (checkCourse.length === 0) {
+                return ctx.notFound('No Students in this Course')
+            }
+
+            await strapi.db.query('api::student.student').deleteMany({
+                where: {
+                    course: {
+                        documentId: course_id
+                    }
+                },
+
+            });
+            ctx.body = {
+                message: 'Students deleted successfully',
+                status: 200
+            }
+        } catch (error) {
+            ctx.throw(500, error);
+        }
+    },
+
+    async CreateAndValidateStudent(ctx) {
+        try {
+            const {
+                student_no,
+                last_name,
+                first_name,
+                middle_name,
+                year_level,
+                student_status,
+                course_id
+            } = ctx.request.body;
+
+
+            if (!student_no) {
+                return ctx.body = {
+                    message: 'Student Number is required',
+                }
+            }
+            if (!first_name) {
+                return ctx.body = {
+                    message: 'First Name is required',
+                }
+            }
+            if (!last_name) {
+                return ctx.body = {
+                    message: 'Last Name is required',
+                }
+            }
+            if (!middle_name) {
+                return ctx.body = {
+                    message: 'Middle Name is required',
+                }
+            }
+            if (!course_id) {
+                return ctx.body = {
+                    message: 'Course is required',
+                }
+            }
+
+            const checkStudentNo = await strapi.documents('api::student.student').findFirst({
+                filters: {
+                    student_no: student_no
+                }
+            })
+
+            if (checkStudentNo) {
+                ctx.status = 400;
+                return ctx.body = {
+                    message: 'Student No already exists'
+                }
+            }
+
+            const createStudent = await strapi
+                .documents('api::student.student')
+                .create({
+                    data: {
+                        student_no: student_no,
+                        last_name: last_name,
+                        first_name: first_name,
+                        middle_name: middle_name,
+                        year_level: year_level,
+                        student_status: student_status,
+                        course: course_id,
+
+                    },
+                    populate: {
+                        course: true,
+
+                    }
+                });
+            ctx.body = createStudent;
+        } catch (error) {
+            ctx.throw(500, error)
+        }
+    }
 
 }
